@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  guinessapp-mariadb:
+    image: mariadb
+    restart: always
+    ports:
+      - '3307:3306'
+    environment:
+      MYSQL_DATABASE: guinessapp
+      MYSQL_USER: guinessapp
+      MYSQL_PASSWORD: guinessapp
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+
+  guinessapp-app:
+    image: guinessapp
+    restart: always
+    ports:
+      - '8080:8080'
+    depends_on:
+      - guinessapp-mariadb
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mariadb://guinessapp-mariadb/guinessapp'
+    entrypoint: ['./wait-for-it.sh', '-t', '120','guinessapp-mariadb:3306','--','java','org.springframework.boot.loader.JarLauncher']
